@@ -1,14 +1,10 @@
 import { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { useNavigate } from 'react-router-dom'
-import { useGitHubAuth } from '../hooks/useGitHubAuth'
-import { useCreateIssue } from '../hooks/useIssues'
+
+const GITHUB_OWNER = 'nafisahammad'
+const GITHUB_REPO = 'NiryoServer'
 
 const Submit = () => {
-  const navigate = useNavigate()
-  const { isAuthenticated, user, token, isConfigured, startDeviceFlow } = useGitHubAuth()
-  const { submitIssue, loading, error } = useCreateIssue()
-
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -18,9 +14,6 @@ const Submit = () => {
     tags: '',
     guestName: ''
   })
-
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false)
-  const [authError, setAuthError] = useState(null)
 
   const categories = [
     { value: 'project', label: 'Project', description: 'Share your project, experiment, or implementation' },
@@ -33,32 +26,36 @@ const Submit = () => {
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = async (e) => {
+  const buildIssueBody = () => {
+    let yaml = '---\n'
+    yaml += `category: "${formData.category}"\n`
+    if (formData.guestName) yaml += `author: "${formData.guestName}"\n`
+    if (formData.repoUrl) yaml += `repo_url: "${formData.repoUrl}"\n`
+    if (formData.images) {
+      const images = formData.images.split('\n').filter(url => url.trim())
+      yaml += `images: [${images.map(i => `"${i.trim()}"`).join(', ')}]\n`
+    }
+    if (formData.tags) {
+      const tags = formData.tags.split(',').map(t => t.trim()).filter(Boolean)
+      yaml += `tags: [${tags.map(t => `"${t}"`).join(', ')}]\n`
+    }
+    yaml += '---\n\n'
+    yaml += formData.description
+    return yaml
+  }
+
+  const handleSubmit = (e) => {
     e.preventDefault()
 
-    const metadata = {
-      category: formData.category,
-      repo_url: formData.repoUrl || undefined,
-      images: formData.images ? formData.images.split('\n').filter(url => url.trim()) : [],
-      tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()) : [],
-    }
+    const body = buildIssueBody()
+    const labels = ['submission', formData.category].join(',')
+    const params = new URLSearchParams({
+      title: formData.title,
+      labels,
+      body
+    })
 
-    if (isAuthenticated) {
-      metadata.github_username = user.login
-    } else {
-      metadata.author = formData.guestName || 'Anonymous'
-    }
-
-    const result = await submitIssue(
-      formData.title,
-      metadata,
-      formData.description,
-      token
-    )
-
-    if (result.success) {
-      navigate(`/post/${result.issue.number}`)
-    }
+    window.location.href = `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/issues/new?${params.toString()}`
   }
 
   return (
@@ -79,58 +76,22 @@ const Submit = () => {
             </p>
           </div>
 
-          {!isAuthenticated && (
-            <div className="bg-niryo-blue/10 border border-niryo-blue/30 rounded-xl p-6 mb-8">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-lg bg-niryo-blue/20 flex items-center justify-center flex-shrink-0">
-                  <svg className="w-6 h-6 text-niryo-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-white mb-1">Submitting as Guest</h3>
-                  <p className="text-gray-400 mb-4">
-                    You can submit without logging in. Just provide your name below. 
-                    Login with GitHub to link your submission to your profile.
-                  </p>
-                  <button
-                    onClick={async () => {
-                      setAuthError(null)
-                      const result = await startDeviceFlow()
-                      if (result.notConfigured) {
-                        setAuthError('GitHub login is not configured yet. You can still submit as a guest.')
-                      }
-                    }}
-                    className="btn-secondary text-sm"
-                  >
-                    Login with GitHub
-                  </button>
-                </div>
+          <div className="bg-niryo-blue/10 border border-niryo-blue/30 rounded-xl p-6 mb-8">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-lg bg-niryo-blue/20 flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-niryo-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-white mb-1">How it works</h3>
+                <p className="text-gray-400">
+                  Fill in the form below and click Submit. You'll be taken to GitHub to create the issue — 
+                  just log in (or create a free account) and click "Submit new issue".
+                </p>
               </div>
             </div>
-          )}
-
-          {authError && (
-            <div className="bg-niryo-blue/10 border border-niryo-blue/30 rounded-xl p-4 mb-8">
-              <p className="text-gray-300 text-sm">{authError}</p>
-            </div>
-          )}
-
-          {isAuthenticated && (
-            <div className="bg-niryo-accent/10 border border-niryo-accent/30 rounded-xl p-6 mb-8">
-              <div className="flex items-center gap-4">
-                <img
-                  src={user.avatar_url}
-                  alt={user.login}
-                  className="w-12 h-12 rounded-full border-2 border-niryo-accent"
-                />
-                <div>
-                  <div className="text-white font-medium">Submitting as {user.login}</div>
-                  <div className="text-sm text-gray-400">Your submission will be linked to your GitHub profile</div>
-                </div>
-              </div>
-            </div>
-          )}
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
@@ -171,22 +132,20 @@ const Submit = () => {
               </div>
             </div>
 
-            {!isAuthenticated && (
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Your Name <span className="text-niryo-blue">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="guestName"
-                  value={formData.guestName}
-                  onChange={handleChange}
-                  required
-                  placeholder="Enter your name"
-                  className="input-field"
-                />
-              </div>
-            )}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Your Name <span className="text-niryo-blue">*</span>
+              </label>
+              <input
+                type="text"
+                name="guestName"
+                value={formData.guestName}
+                onChange={handleChange}
+                required
+                placeholder="Enter your name"
+                className="input-field"
+              />
+            </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -247,27 +206,17 @@ const Submit = () => {
               />
             </div>
 
-            {error && (
-              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
-                <p className="text-red-400 text-sm">{error}</p>
-              </div>
-            )}
-
             <div className="pt-4">
               <button
                 type="submit"
-                disabled={loading || !formData.title || !formData.description}
+                disabled={!formData.title || !formData.description || !formData.guestName}
                 className="w-full btn-primary py-4 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Submitting...
-                  </span>
-                ) : (
-                  'Submit Your Work'
-                )}
+                Submit on GitHub
               </button>
+              <p className="text-xs text-gray-500 text-center mt-3">
+                You'll be redirected to GitHub to complete your submission
+              </p>
             </div>
           </form>
 
