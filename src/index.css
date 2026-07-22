@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #0F0F1A;
+  color: #E8F4F8;
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1A1A2E;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #00A3E0;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00D4AA;
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-niryo-blue hover:bg-niryo-accent text-white font-semibold py-2 px-6 rounded-lg transition-all duration-300 transform hover:scale-105;
+  }
+
+  .btn-secondary {
+    @apply border border-niryo-blue text-niryo-blue hover:bg-niryo-blue hover:text-white font-semibold py-2 px-6 rounded-lg transition-all duration-300;
+  }
+
+  .card {
+    @apply bg-niryo-gray/50 backdrop-blur-sm border border-niryo-blue/20 rounded-xl p-6 hover:border-niryo-blue/50 transition-all duration-300;
+  }
+
+  .input-field {
+    @apply w-full bg-niryo-darker border border-niryo-blue/30 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-niryo-blue focus:ring-1 focus:ring-niryo-blue transition-all;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-niryo-blue to-niryo-accent bg-clip-text text-transparent;
+  }
+
+  .glow-border {
+    @apply border border-niryo-blue/50 shadow-[0_0_15px_rgba(0,163,224,0.3)];
+  }
+}
