@@ -44,7 +44,7 @@ const Navbar = () => {
               </div>
               <div>
                 <span className="text-xl font-bold gradient-text">Niryo NED</span>
-                <span className="hidden sm:block text-xs text-gray-400">KUET Robotics Lab</span>
+                <span className="hidden sm:block text-xs text-gray-400">AI & Robotics Lab, CSE - KUET</span>
               </div>
             </Link>
 

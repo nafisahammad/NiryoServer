@@ -14,7 +14,7 @@ const Footer = () => {
               </div>
               <div>
                 <span className="text-xl font-bold gradient-text">Niryo NED</span>
-                <span className="block text-xs text-gray-400">KUET Robotics Lab</span>
+                <span className="block text-xs text-gray-400">AI & Robotics Lab, CSE - KUET</span>
               </div>
             </Link>
             <p className="text-gray-400 max-w-md">
@@ -146,7 +146,7 @@ const Footer = () => {
         <div className="mt-12 pt-8 border-t border-niryo-gray">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-gray-500 text-sm">
-              © {new Date().getFullYear()} Niryo NED Community | KUET Robotics Lab. All rights reserved.
+              © {new Date().getFullYear()} Niryo NED Community | AI & Robotics Lab, CSE - KUET. All rights reserved.
             </p>
             <div className="flex items-center space-x-4">
               <a

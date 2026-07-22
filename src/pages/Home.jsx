@@ -2,6 +2,7 @@ import { Helmet } from 'react-helmet-async'
 import { Link } from 'react-router-dom'
 import { useIssues } from '../hooks/useIssues'
 import PostCard from '../components/PostCard'
+import nedImg from '../assets/ned.png'
 
 const Home = () => {
   const { issues, loading } = useIssues(1, 6, 'project')
@@ -42,7 +43,7 @@ const Home = () => {
   return (
     <>
       <Helmet>
-        <title>Niryo NED Community | KUET Robotics Lab</title>
+        <title>Niryo NED Community | AI & Robotics Lab - KUET</title>
         <meta name="description" content="A community platform for researchers and enthusiasts working with Niryo NED robot at KUET" />
       </Helmet>
 
@@ -56,7 +57,7 @@ const Home = () => {
         <div className="relative z-10 text-center px-4 max-w-6xl mx-auto">
           <div className="mb-8">
             <span className="inline-block px-4 py-2 bg-niryo-blue/10 border border-niryo-blue/30 rounded-full text-niryo-blue text-sm font-medium mb-6">
-              🤖 KUET Robotics Lab
+              🤖 AI & Robotics Lab, CSE - KUET
             </span>
           </div>
 
@@ -74,19 +75,10 @@ const Home = () => {
 
           <div className="mb-12">
             <img
-              src="https://niryo.com/wp-content/uploads/2022/08/header-ned2.png"
+              src={nedImg}
               alt="Niryo NED Robot"
-              className="max-w-md mx-auto w-full"
-              onError={(e) => {
-                e.target.style.display = 'none'
-                e.target.nextSibling.style.display = 'flex'
-              }}
+              className="max-w-md mx-auto w-full rounded-2xl"
             />
-            <div className="hidden w-full max-w-md mx-auto h-64 bg-gradient-to-br from-niryo-blue/30 to-niryo-accent/30 rounded-2xl items-center justify-center">
-              <svg className="w-48 h-48 text-niryo-blue/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-            </div>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

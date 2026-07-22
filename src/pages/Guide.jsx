@@ -1,5 +1,6 @@
 import { Helmet } from 'react-helmet-async'
 import { Link } from 'react-router-dom'
+import nedImg from '../assets/ned.png'
 
 const Guide = () => {
   const softwareLinks = [
@@ -109,7 +110,7 @@ const Guide = () => {
   return (
     <>
       <Helmet>
-        <title>Niryo NED Guide | KUET Robotics Lab</title>
+        <title>Niryo NED Guide | AI & Robotics Lab - KUET</title>
         <meta name="description" content="Comprehensive guides and tutorials for working with Niryo NED robot at KUET" />
       </Helmet>
 
@@ -131,19 +132,10 @@ const Guide = () => {
               <div className="flex flex-col lg:flex-row items-center gap-8 p-8">
                 <div className="flex-1">
                   <img
-                    src="https://niryo.com/wp-content/uploads/2022/08/header-ned2.png"
+                    src={nedImg}
                     alt="Niryo NED Robot"
-                    className="w-full max-w-lg mx-auto"
-                    onError={(e) => {
-                      e.target.style.display = 'none'
-                      e.target.nextSibling.style.display = 'flex'
-                    }}
+                    className="w-full max-w-lg mx-auto rounded-xl"
                   />
-                  <div className="hidden w-full max-w-lg mx-auto h-64 bg-gradient-to-br from-niryo-blue/30 to-niryo-accent/30 rounded-xl items-center justify-center">
-                    <svg className="w-48 h-48 text-niryo-blue/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                  </div>
                 </div>
                 <div className="flex-1">
                   <h2 className="text-2xl font-bold text-white mb-4">About Niryo NED</h2>

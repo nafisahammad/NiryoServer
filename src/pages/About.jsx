@@ -1,41 +1,18 @@
 import { Helmet } from 'react-helmet-async'
 
 const About = () => {
-  const team = [
-    {
-      name: 'Dr. [Faculty Name]',
-      role: 'Lab Director',
-      description: 'Leading research in collaborative robotics and automation',
-    },
-    {
-      name: '[Researcher 1]',
-      role: 'PhD Researcher',
-      description: 'Focus on robot vision and machine learning',
-    },
-    {
-      name: '[Researcher 2]',
-      role: 'MS Researcher',
-      description: 'Specializing in motion planning and control',
-    },
-    {
-      name: '[Student 1]',
-      role: 'Undergraduate Researcher',
-      description: 'Working on educational robotics applications',
-    },
-  ]
-
   return (
     <>
       <Helmet>
         <title>About | Niryo NED Community - KUET</title>
-        <meta name="description" content="Learn about the KUET Robotics Lab and our work with Niryo NED collaborative robots" />
+        <meta name="description" content="Learn about the AI & Robotics Lab, CSE Department at KUET and our work with Niryo NED collaborative robots" />
       </Helmet>
 
       <div className="pt-24 pb-16 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              About <span className="gradient-text">KUET</span> Robotics Lab
+              About <span className="gradient-text">AI & Robotics</span> Lab
             </h1>
             <p className="text-xl text-gray-400 max-w-3xl mx-auto">
               Advancing robotics research and education at Khulna University of Engineering & Technology
@@ -46,7 +23,7 @@ const About = () => {
             <div>
               <h2 className="text-3xl font-bold text-white mb-6">Our Mission</h2>
               <p className="text-gray-400 mb-6 leading-relaxed">
-                The KUET Robotics Lab is dedicated to advancing the field of collaborative robotics 
+                The AI & Robotics Lab, Department of Computer Science & Engineering at KUET is dedicated to advancing the field of collaborative robotics 
                 through research, education, and community engagement. With our Niryo NED robots, 
                 we aim to:
               </p>
@@ -140,20 +117,18 @@ const About = () => {
           </div>
 
           <div className="mb-16">
-            <h2 className="text-3xl font-bold text-white mb-8 text-center">Meet the Team</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {team.map((member, index) => (
-                <div key={index} className="card text-center">
-                  <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-niryo-blue to-niryo-accent flex items-center justify-center">
-                    <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-lg font-semibold text-white mb-1">{member.name}</h3>
-                  <p className="text-niryo-blue text-sm mb-2">{member.role}</p>
-                  <p className="text-gray-400 text-sm">{member.description}</p>
-                </div>
-              ))}
+            <div className="card max-w-2xl mx-auto text-center">
+              <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-niryo-blue to-niryo-accent flex items-center justify-center">
+                <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-2">Nafis Ahammad</h2>
+              <p className="text-niryo-blue mb-4">Built this platform</p>
+              <p className="text-gray-400">
+                Developed the Niryo NED Community Hub to connect researchers, students, and enthusiasts 
+                working with collaborative robotics at KUET.
+              </p>
             </div>
           </div>
 
