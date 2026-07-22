@@ -1,142 +1,92 @@
 import { useState, useEffect, useCallback } from 'react'
-import { fetchIssues, fetchIssue, createIssue, parseIssueBody } from '../utils/github'
+import { fetchProjects, fetchProject, createProject } from '../services/projects'
 
-export const useIssues = (initialPage = 1, perPage = 10, labels = '') => {
-  const [issues, setIssues] = useState([])
+export const useProjects = (initialCategory = '') => {
+  const [projects, setProjects] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [currentPage, setCurrentPage] = useState(initialPage)
-  const [totalPages, setTotalPages] = useState(1)
+  const [lastDoc, setLastDoc] = useState(null)
+  const [hasMore, setHasMore] = useState(true)
 
-  const loadIssues = useCallback(async (page = currentPage, filterLabels = labels) => {
+  const loadProjects = useCallback(async (category = initialCategory, loadMore = false) => {
     setLoading(true)
     setError(null)
-    
+
     try {
-      const result = await fetchIssues(page, perPage, filterLabels)
-      
-      const parsedIssues = result.issues.map(issue => ({
-        id: issue.number,
-        title: issue.title,
-        author: issue.user.login,
-        authorAvatar: issue.user.avatar_url,
-        createdAt: issue.created_at,
-        updatedAt: issue.updated_at,
-        labels: issue.labels.map(l => l.name),
-        comments: issue.comments,
-        ...parseIssueBody(issue.body || '')
-      }))
-      
-      setIssues(parsedIssues)
-      setTotalPages(result.totalPages)
-      setCurrentPage(page)
+      const result = await fetchProjects({
+        pageSize: 12,
+        lastDoc: loadMore ? lastDoc : null,
+        category: category || null
+      })
+
+      if (loadMore) {
+        setProjects(prev => [...prev, ...result.projects])
+      } else {
+        setProjects(result.projects)
+      }
+      setLastDoc(result.lastDoc)
+      setHasMore(result.hasMore)
     } catch (err) {
       setError(err.message)
     } finally {
       setLoading(false)
     }
-  }, [currentPage, perPage, labels])
+  }, [initialCategory, lastDoc])
 
   useEffect(() => {
-    loadIssues()
+    loadProjects()
   }, [])
 
-  const refreshIssues = useCallback(() => {
-    return loadIssues(currentPage, labels)
-  }, [loadIssues, currentPage, labels])
-
-  const goToPage = useCallback((page) => {
-    return loadIssues(page, labels)
-  }, [loadIssues, labels])
+  const loadMore = useCallback(() => {
+    if (hasMore && !loading) {
+      return loadProjects(null, true)
+    }
+  }, [hasMore, loading, loadProjects])
 
   return {
-    issues,
+    projects,
     loading,
     error,
-    currentPage,
-    totalPages,
-    refreshIssues,
-    goToPage
+    hasMore,
+    loadMore,
+    refresh: () => {
+      setLastDoc(null)
+      return loadProjects()
+    }
   }
 }
 
-export const useIssue = (issueNumber) => {
-  const [issue, setIssue] = useState(null)
+export const useProject = (projectId) => {
+  const [project, setProject] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const loadIssue = useCallback(async () => {
-    if (!issueNumber) return
-    
+  useEffect(() => {
+    if (!projectId) return
+
     setLoading(true)
     setError(null)
-    
-    try {
-      const data = await fetchIssue(issueNumber)
-      const parsed = {
-        id: data.number,
-        title: data.title,
-        author: data.user.login,
-        authorAvatar: data.user.avatar_url,
-        createdAt: data.created_at,
-        updatedAt: data.updated_at,
-        labels: data.labels.map(l => l.name),
-        comments: data.comments,
-        body: data.body,
-        ...parseIssueBody(data.body || '')
-      }
-      
-      setIssue(parsed)
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [issueNumber])
 
-  useEffect(() => {
-    loadIssue()
-  }, [loadIssue])
+    fetchProject(projectId)
+      .then(data => setProject(data))
+      .catch(err => setError(err.message))
+      .finally(() => setLoading(false))
+  }, [projectId])
 
-  const refreshIssue = useCallback(() => {
-    return loadIssue()
-  }, [loadIssue])
-
-  return {
-    issue,
-    loading,
-    error,
-    refreshIssue
-  }
+  return { project, loading, error }
 }
 
-export const useCreateIssue = () => {
+export const useCreateProject = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const submitIssue = useCallback(async (title, metadata, content, token = null) => {
+  const submit = useCallback(async (data) => {
     setLoading(true)
     setError(null)
-    
+
     try {
-      const labels = ['submission']
-      if (metadata.category) {
-        labels.push(metadata.category)
-      }
-      
-      let body = '---\n'
-      Object.entries(metadata).forEach(([key, value]) => {
-        if (Array.isArray(value)) {
-          body += `${key}: [${value.map(v => `"${v}"`).join(', ')}]\n`
-        } else {
-          body += `${key}: "${value}"\n`
-        }
-      })
-      body += '---\n\n'
-      body += content
-      
-      const result = await createIssue(title, body, labels, token)
-      return { success: true, issue: result }
+      const id = await createProject(data)
+      return { success: true, id }
     } catch (err) {
       setError(err.message)
       return { success: false, error: err.message }
@@ -145,9 +95,5 @@ export const useCreateIssue = () => {
     }
   }, [])
 
-  return {
-    submitIssue,
-    loading,
-    error
-  }
+  return { submit, loading, error }
 }

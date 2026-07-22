@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
-
-const GITHUB_OWNER = 'nafisahammad'
-const GITHUB_REPO = 'NiryoServer'
+import { useNavigate } from 'react-router-dom'
+import { useCreateProject } from '../hooks/useIssues'
 
 const Submit = () => {
+  const navigate = useNavigate()
+  const { submit, loading, error } = useCreateProject()
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -12,7 +14,7 @@ const Submit = () => {
     repoUrl: '',
     images: '',
     tags: '',
-    guestName: ''
+    author: ''
   })
 
   const categories = [
@@ -26,36 +28,24 @@ const Submit = () => {
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  const buildIssueBody = () => {
-    let yaml = '---\n'
-    yaml += `category: "${formData.category}"\n`
-    if (formData.guestName) yaml += `author: "${formData.guestName}"\n`
-    if (formData.repoUrl) yaml += `repo_url: "${formData.repoUrl}"\n`
-    if (formData.images) {
-      const images = formData.images.split('\n').filter(url => url.trim())
-      yaml += `images: [${images.map(i => `"${i.trim()}"`).join(', ')}]\n`
-    }
-    if (formData.tags) {
-      const tags = formData.tags.split(',').map(t => t.trim()).filter(Boolean)
-      yaml += `tags: [${tags.map(t => `"${t}"`).join(', ')}]\n`
-    }
-    yaml += '---\n\n'
-    yaml += formData.description
-    return yaml
-  }
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
-    const body = buildIssueBody()
-    const labels = ['submission', formData.category].join(',')
-    const params = new URLSearchParams({
+    const data = {
       title: formData.title,
-      labels,
-      body
-    })
+      description: formData.description,
+      category: formData.category,
+      author: formData.author || 'Anonymous',
+      repoUrl: formData.repoUrl || '',
+      images: formData.images ? formData.images.split('\n').filter(url => url.trim()).map(u => u.trim()) : [],
+      tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(Boolean) : []
+    }
 
-    window.location.href = `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/issues/new?${params.toString()}`
+    const result = await submit(data)
+
+    if (result.success) {
+      navigate(`/post/${result.id}`)
+    }
   }
 
   return (
@@ -74,23 +64,6 @@ const Submit = () => {
             <p className="text-xl text-gray-400">
               Share your projects, guides, and experiments with the community
             </p>
-          </div>
-
-          <div className="bg-niryo-blue/10 border border-niryo-blue/30 rounded-xl p-6 mb-8">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-lg bg-niryo-blue/20 flex items-center justify-center flex-shrink-0">
-                <svg className="w-6 h-6 text-niryo-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-white mb-1">How it works</h3>
-                <p className="text-gray-400">
-                  Fill in the form below and click Submit. You'll be taken to GitHub to create the issue — 
-                  just log in (or create a free account) and click "Submit new issue".
-                </p>
-              </div>
-            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -138,8 +111,8 @@ const Submit = () => {
               </label>
               <input
                 type="text"
-                name="guestName"
-                value={formData.guestName}
+                name="author"
+                value={formData.author}
                 onChange={handleChange}
                 required
                 placeholder="Enter your name"
@@ -206,17 +179,27 @@ const Submit = () => {
               />
             </div>
 
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+                <p className="text-red-400 text-sm">{error}</p>
+              </div>
+            )}
+
             <div className="pt-4">
               <button
                 type="submit"
-                disabled={!formData.title || !formData.description || !formData.guestName}
+                disabled={loading || !formData.title || !formData.description || !formData.author}
                 className="w-full btn-primary py-4 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Submit on GitHub
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Submitting...
+                  </span>
+                ) : (
+                  'Submit Your Work'
+                )}
               </button>
-              <p className="text-xs text-gray-500 text-center mt-3">
-                You'll be redirected to GitHub to complete your submission
-              </p>
             </div>
           </form>
 

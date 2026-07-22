@@ -1,15 +1,15 @@
 import { useParams, Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import ReactMarkdown from 'react-markdown'
-import { useIssue } from '../hooks/useIssues'
+import { useProject } from '../hooks/useIssues'
 
 const Post = () => {
   const { id } = useParams()
-  const { issue, loading, error } = useIssue(parseInt(id))
+  const { project, loading, error } = useProject(id)
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', {
+  const formatDate = (date) => {
+    const d = date instanceof Date ? date : new Date(date)
+    return d.toLocaleDateString('en-US', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -56,7 +56,7 @@ const Post = () => {
     )
   }
 
-  if (!issue) {
+  if (!project) {
     return (
       <div className="pt-24 pb-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
@@ -70,15 +70,11 @@ const Post = () => {
     )
   }
 
-  const category = issue.metadata?.category || issue.labels.find(l => 
-    ['project', 'guide', 'question'].includes(l)
-  ) || 'project'
-
   return (
     <>
       <Helmet>
-        <title>{issue.title} | Niryo NED Community</title>
-        <meta name="description" content={issue.content?.substring(0, 160)} />
+        <title>{project.title} | Niryo NED Community</title>
+        <meta name="description" content={project.description?.substring(0, 160)} />
       </Helmet>
 
       <article className="pt-24 pb-16 px-4">
@@ -94,12 +90,12 @@ const Post = () => {
           </Link>
 
           <div className="flex items-center gap-3 mb-4">
-            <span className={`px-3 py-1 rounded-full text-sm font-medium ${categoryColors[category] || 'bg-niryo-gray text-gray-400'}`}>
-              {category.charAt(0).toUpperCase() + category.slice(1)}
+            <span className={`px-3 py-1 rounded-full text-sm font-medium ${categoryColors[project.category] || 'bg-niryo-gray text-gray-400'}`}>
+              {project.category?.charAt(0).toUpperCase() + project.category?.slice(1)}
             </span>
-            {issue.metadata?.repo_url && (
+            {project.repoUrl && (
               <a
-                href={issue.metadata.repo_url}
+                href={project.repoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-3 py-1 bg-niryo-gray rounded-full text-sm text-gray-300 hover:text-white transition-colors"
@@ -113,36 +109,31 @@ const Post = () => {
           </div>
 
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            {issue.title}
+            {project.title}
           </h1>
 
           <div className="flex items-center gap-4 mb-8 pb-8 border-b border-niryo-gray">
-            <img
-              src={issue.authorAvatar}
-              alt={issue.author}
-              className="w-12 h-12 rounded-full border-2 border-niryo-blue"
-            />
+            <div className="w-10 h-10 rounded-full bg-niryo-blue/20 flex items-center justify-center text-niryo-blue font-bold">
+              {project.author?.charAt(0)?.toUpperCase() || '?'}
+            </div>
             <div>
               <div className="text-white font-medium">
-                {issue.metadata?.github_username || issue.metadata?.author || issue.author}
+                {project.author || 'Anonymous'}
               </div>
               <div className="text-sm text-gray-400">
-                Posted on {formatDate(issue.createdAt)}
-                {issue.updatedAt !== issue.createdAt && (
-                  <span> · Updated {formatDate(issue.updatedAt)}</span>
-                )}
+                Posted on {formatDate(project.createdAt)}
               </div>
             </div>
           </div>
 
-          {issue.metadata?.images && issue.metadata.images.length > 0 && (
+          {project.images && project.images.length > 0 && (
             <div className="mb-8">
               <div className="grid gap-4">
-                {issue.metadata.images.map((imageUrl, index) => (
+                {project.images.map((imageUrl, index) => (
                   <div key={index} className="rounded-xl overflow-hidden border border-niryo-blue/20">
                     <img
                       src={imageUrl}
-                      alt={`${issue.title} - Image ${index + 1}`}
+                      alt={`${project.title} - Image ${index + 1}`}
                       className="w-full h-auto"
                       onError={(e) => {
                         e.target.parentElement.style.display = 'none'
@@ -186,15 +177,15 @@ const Post = () => {
                 ),
               }}
             >
-              {issue.content || ''}
+              {project.description || ''}
             </ReactMarkdown>
           </div>
 
-          {issue.metadata?.tags && issue.metadata.tags.length > 0 && (
+          {project.tags && project.tags.length > 0 && (
             <div className="mt-8 pt-8 border-t border-niryo-gray">
               <h3 className="text-sm font-medium text-gray-400 mb-3">Tags</h3>
               <div className="flex flex-wrap gap-2">
-                {issue.metadata.tags.map((tag, index) => (
+                {project.tags.map((tag, index) => (
                   <span
                     key={index}
                     className="px-3 py-1 bg-niryo-gray rounded-full text-sm text-gray-300"
@@ -205,22 +196,6 @@ const Post = () => {
               </div>
             </div>
           )}
-
-          <div className="mt-8 pt-8 border-t border-niryo-gray">
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-400">
-                Issue #{issue.id}
-              </div>
-              <a
-                href={`https://github.com/${import.meta.env.VITE_GITHUB_OWNER}/${import.meta.env.VITE_GITHUB_REPO}/issues/${issue.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-niryo-blue hover:text-niryo-accent transition-colors"
-              >
-                View on GitHub →
-              </a>
-            </div>
-          </div>
         </div>
       </article>
     </>

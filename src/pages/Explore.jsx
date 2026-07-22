@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { useIssues } from '../hooks/useIssues'
+import { useProjects } from '../hooks/useIssues'
 import PostCard from '../components/PostCard'
 
 const Explore = () => {
@@ -8,7 +8,7 @@ const Explore = () => {
     category: '',
     search: ''
   })
-  const { issues, loading, error, currentPage, totalPages, goToPage } = useIssues(1, 12, filters.category)
+  const { projects, loading, error, hasMore, loadMore } = useProjects(filters.category)
 
   const categories = [
     { value: '', label: 'All Categories' },
@@ -17,13 +17,13 @@ const Explore = () => {
     { value: 'question', label: 'Questions' },
   ]
 
-  const filteredIssues = issues.filter(issue => {
+  const filteredProjects = projects.filter(project => {
     if (filters.search) {
       const searchLower = filters.search.toLowerCase()
       return (
-        issue.title.toLowerCase().includes(searchLower) ||
-        issue.content?.toLowerCase().includes(searchLower) ||
-        issue.metadata?.tags?.some(tag => tag.toLowerCase().includes(searchLower))
+        project.title?.toLowerCase().includes(searchLower) ||
+        project.description?.toLowerCase().includes(searchLower) ||
+        project.tags?.some(tag => tag.toLowerCase().includes(searchLower))
       )
     }
     return true
@@ -89,7 +89,7 @@ const Explore = () => {
             </div>
           )}
 
-          {loading ? (
+          {loading && projects.length === 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(12)].map((_, i) => (
                 <div key={i} className="card animate-pulse">
@@ -99,7 +99,7 @@ const Explore = () => {
                 </div>
               ))}
             </div>
-          ) : filteredIssues.length === 0 ? (
+          ) : filteredProjects.length === 0 ? (
             <div className="text-center py-16">
               <svg className="w-16 h-16 mx-auto text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -114,39 +114,19 @@ const Explore = () => {
           ) : (
             <>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredIssues.map((issue) => (
-                  <PostCard key={issue.id} issue={issue} />
+                {filteredProjects.map((project) => (
+                  <PostCard key={project.id} project={project} />
                 ))}
               </div>
 
-              {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-2 mt-12">
+              {hasMore && (
+                <div className="flex justify-center mt-12">
                   <button
-                    onClick={() => goToPage(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className="px-4 py-2 rounded-lg bg-niryo-gray hover:bg-niryo-blue/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    onClick={loadMore}
+                    disabled={loading}
+                    className="btn-secondary px-8 disabled:opacity-50"
                   >
-                    Previous
-                  </button>
-                  {[...Array(totalPages)].map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => goToPage(i + 1)}
-                      className={`w-10 h-10 rounded-lg transition-colors ${
-                        currentPage === i + 1
-                          ? 'bg-niryo-blue text-white'
-                          : 'bg-niryo-gray hover:bg-niryo-blue/20'
-                      }`}
-                    >
-                      {i + 1}
-                    </button>
-                  ))}
-                  <button
-                    onClick={() => goToPage(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className="px-4 py-2 rounded-lg bg-niryo-gray hover:bg-niryo-blue/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    Next
+                    {loading ? 'Loading...' : 'Load More'}
                   </button>
                 </div>
               )}

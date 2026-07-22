@@ -1,11 +1,11 @@
 import { Helmet } from 'react-helmet-async'
 import { Link } from 'react-router-dom'
-import { useIssues } from '../hooks/useIssues'
+import { useProjects } from '../hooks/useIssues'
 import PostCard from '../components/PostCard'
 import nedImg from '../assets/ned.png'
 
 const Home = () => {
-  const { issues, loading } = useIssues(1, 6, 'project')
+  const { projects, loading } = useProjects('project')
 
   const features = [
     {
@@ -57,7 +57,7 @@ const Home = () => {
         <div className="relative z-10 text-center px-4 max-w-6xl mx-auto">
           <div className="mb-8">
             <span className="inline-block px-4 py-2 bg-niryo-blue/10 border border-niryo-blue/30 rounded-full text-niryo-blue text-sm font-medium mb-6">
-              🤖 AI & Robotics Lab, CSE - KUET
+              AI & Robotics Lab, CSE - KUET
             </span>
           </div>
 
@@ -167,9 +167,18 @@ const Home = () => {
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {issues.map((issue) => (
-                <PostCard key={issue.id} issue={issue} />
+              {projects.map((project) => (
+                <PostCard key={project.id} project={project} />
               ))}
+            </div>
+          )}
+
+          {!loading && projects.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-gray-400 text-lg mb-4">No projects yet. Be the first to share!</p>
+              <Link to="/submit" className="btn-primary">
+                Submit Your Work
+              </Link>
             </div>
           )}
 
