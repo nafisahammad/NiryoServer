@@ -29,19 +29,8 @@ const PostCard = ({ project }) => {
               src={project.images[0]}
               alt={project.title}
               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-              onError={(e) => {
-                e.target.style.display = 'none'
-              }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-niryo-darker/80 to-transparent"></div>
-          </div>
-        )}
-
-        {!project.images?.[0] && (
-          <div className="relative h-48 rounded-lg overflow-hidden mb-4 bg-gradient-to-br from-niryo-blue/20 to-niryo-accent/20 flex items-center justify-center">
-            <svg className="w-16 h-16 text-niryo-blue/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
           </div>
         )}
 
