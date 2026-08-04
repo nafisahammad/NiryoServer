@@ -135,6 +135,9 @@ const Post = () => {
                       src={imageUrl}
                       alt={`${project.title} - Image ${index + 1}`}
                       className="w-full h-auto"
+                      onError={(e) => {
+                        e.target.parentElement.style.display = 'none'
+                      }}
                     />
                   </div>
                 ))}
